@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: rgb(131,58,180);
+            background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        #todo-container {
+            width: 90%;
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: background-color 0.5s;
+        }
+
+        #todo-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 10px;
+        }
+
+        .todo-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .todo-item button {
+            background-color:crimson;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .add-todo {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .add-todo input {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .add-todo button {
+            flex: 0 0 80px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #dark-mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color:darkcyan;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        @media screen and (max-width: 600px) {
+            .add-todo input {
+                flex: 1;
+                min-width: auto;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .add-todo button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+
+    <div id="todo-container">
+        <h2>To-Do List</h2>
+        <div class="add-todo">
+            <input type="text" id="todo-input" placeholder="Add a new task">
+            <button onclick="addTodo()">Add</button>
+        </div>
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTodos();
+            checkDarkMode();
+        });
+
+        function loadTodos() {
+            const todoList = document.getElementById('todo-list');
+            todoList.innerHTML = '';
+
+            const todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+            todos.forEach(function(todo, index) {
+                const li = document.createElement('li');
+                li.className = 'todo-item';
+                li.innerHTML = `
+                    <span>${todo}</span>
+                    <button onclick="editTodo(${index})">Edit</button>
+                    <button onclick="removeTodo(${index})">Remove</button>
+                `;
+                todoList.appendChild(li);
+            });
+        }
+
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            const todo = input.value.trim();
+
+            if (todo !== '') {
+                const todos = JSON.parse(localStorage.getItem('todos')) || [];
+                todos.push(todo);
+                localStorage.setItem('todos', JSON.stringify(todos));
+                input.value = '';
+                loadTodos();
+            }
+        }
+
+        function editTodo(index) {
+            const todos = JSON.parse(localStorage.getItem('todos')) || [];
+            const updatedTodo = prompt('Edit task:', todos[index]);
+
+            if (updatedTodo !== null) {
+                todos[index] = updatedTodo.trim();
+                localStorage.setItem('todos', JSON.stringify(todos));
+                loadTodos();
+            }
+        }
+
+        function removeTodo(index) {
+            const todos = JSON.parse(localStorage.getItem('todos')) || [];
+            todos.splice(index, 1);
+            localStorage.setItem('todos', JSON.stringify(todos));
+            loadTodos();
+        }
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const todoContainer = document.getElementById('todo-container');
+
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                todoContainer.style.backgroundColor = '#fff';
+            } else {
+                body.classList.add('dark-mode');
+                todoContainer.style.backgroundColor = '#333';
+            }
+        }
+
+        function checkDarkMode() {
+            const body = document.body;
+            const todoContainer = document.getElementById('todo-container');
+
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                body.classList.add('dark-mode');
+                todoContainer.style.backgroundColor = '#333';
+            }
+        }
+    </script>
+
+</body>
+</html>
